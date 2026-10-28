@@ -143,3 +143,94 @@ export const PLUG_STATUS = {
     },
   },
 };
+
+// A Samsung soundbar (HW-Q935F, real capability list): no mediaPlayback, play
+// and pause go through the remote control keys.
+const caps = (...ids) => ids.map((id) => ({ id, version: 1 }));
+
+export const SOUNDBAR_DEVICE = {
+  deviceId: 'soundbar-1',
+  name: 'Samsung Soundbar Q935F',
+  label: 'Q-Series Soundbar',
+  components: [
+    {
+      id: 'main',
+      capabilities: caps(
+        'ocf',
+        'execute',
+        'refresh',
+        'switch',
+        'audioVolume',
+        'audioMute',
+        'samsungvd.audioInputSource',
+        'audioNotification',
+        'samsungvd.soundFrom',
+        'samsungvd.remoteControl',
+      ),
+      categories: [{ name: 'NetworkAudio', categoryType: 'manufacturer' }],
+    },
+  ],
+};
+
+export const SOUNDBAR_STATUS = {
+  components: {
+    main: {
+      switch: { switch: { value: 'on' } },
+      audioVolume: { volume: { value: 19, unit: '%' } },
+      audioMute: { mute: { value: 'muted' } },
+      'samsungvd.audioInputSource': { inputSource: { value: 'TV ARC' } },
+    },
+  },
+};
+
+// A generic network speaker exposing the standard media capabilities.
+export const SPEAKER_DEVICE = {
+  deviceId: 'speaker-1',
+  name: 'speaker',
+  label: 'Kitchen speaker',
+  components: [
+    {
+      id: 'main',
+      capabilities: caps(
+        'switch',
+        'audioVolume',
+        'mediaPlayback',
+        'mediaTrackControl',
+        'samsungvd.remoteControl',
+      ),
+      categories: [{ name: 'Speaker', categoryType: 'manufacturer' }],
+    },
+  ],
+};
+
+export const SPEAKER_STATUS = {
+  components: {
+    main: {
+      audioVolume: { volume: { value: 35, unit: '%' } },
+      mediaPlayback: { playbackStatus: { value: 'playing' } },
+    },
+  },
+};
+
+// A Samsung TV (QE65Q70R, subset of its real capability list).
+export const TV_DEVICE = {
+  deviceId: 'tv-1',
+  name: 'Samsung Q70 Series (65)',
+  label: 'BabyTV',
+  components: [
+    {
+      id: 'main',
+      capabilities: caps(
+        'switch',
+        'audioVolume',
+        'audioMute',
+        'tvChannel',
+        'mediaInputSource',
+        'mediaPlayback',
+        'samsungvd.remoteControl',
+        'samsungvd.mediaInputSource',
+      ),
+      categories: [{ name: 'Television', categoryType: 'manufacturer' }],
+    },
+  ],
+};

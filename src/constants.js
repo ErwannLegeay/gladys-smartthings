@@ -52,6 +52,48 @@ export const GLADYS_TO_THERMOSTAT_MODE = {
   [AC_MODE.FAN]: 'fanonly',
 };
 
+// Gladys music player types (capabilities/music.md of Gladys). `mute` is not in
+// the SDK constants yet: it exists in Gladys since the music player workstream.
+export const MUSIC_TYPES = {
+  VOLUME: 'volume',
+  MUTE: 'mute',
+  PLAY: 'play',
+  PAUSE: 'pause',
+  NEXT: 'next',
+  PREVIOUS: 'previous',
+  PLAYBACK_STATE: 'playback_state',
+  PLAY_NOTIFICATION: 'play_notification',
+};
+
+// Gladys MUSIC_PLAYBACK_STATE. Writing PLAYING / PAUSED / IDLE plays, pauses
+// and stops a player whose playback_state is writable.
+export const MUSIC_PLAYBACK_STATE = {
+  PAUSED: 0,
+  PLAYING: 1,
+  IDLE: 2,
+  BUFFERING: 3,
+};
+
+// SmartThings mediaPlayback.playbackStatus -> Gladys playback state.
+export const PLAYBACK_STATUS_TO_GLADYS = {
+  playing: MUSIC_PLAYBACK_STATE.PLAYING,
+  paused: MUSIC_PLAYBACK_STATE.PAUSED,
+  stopped: MUSIC_PLAYBACK_STATE.IDLE,
+  buffering: MUSIC_PLAYBACK_STATE.BUFFERING,
+  'fast forwarding': MUSIC_PLAYBACK_STATE.PLAYING,
+  rewinding: MUSIC_PLAYBACK_STATE.PLAYING,
+};
+
+export const GLADYS_TO_PLAYBACK_COMMAND = {
+  [MUSIC_PLAYBACK_STATE.PLAYING]: 'play',
+  [MUSIC_PLAYBACK_STATE.PAUSED]: 'pause',
+  [MUSIC_PLAYBACK_STATE.IDLE]: 'stop',
+};
+
+// Capabilities of a TV: its audio capabilities are not mapped to a music
+// player (a TV is a television, not a speaker).
+export const TELEVISION_CAPABILITIES = ['tvChannel', 'samsungvd.mediaInputSource'];
+
 // SmartThings capability ids used to detect the "kind" of a device (so a bulb
 // exposing `switch` is mapped to the Gladys LIGHT category, not SWITCH).
 export const LIGHT_CAPABILITIES = ['colorControl', 'colorTemperature'];
@@ -104,4 +146,16 @@ export const FEATURE_CODES = {
   THERMOSTAT_MODE: 'thermostat-mode',
   COOLING_SETPOINT: 'cooling-setpoint',
   HEATING_SETPOINT: 'heating-setpoint',
+  VOLUME: 'volume',
+  MUTE: 'mute',
+  PLAYBACK_STATE: 'playback-state',
+  PLAY: 'play',
+  PAUSE: 'pause',
+  // Play / pause through the Samsung remote control keys (soundbars without
+  // mediaPlayback): own codes, so that a command never picks the wrong path.
+  REMOTE_PLAY: 'remote-play',
+  REMOTE_PAUSE: 'remote-pause',
+  NEXT: 'next',
+  PREVIOUS: 'previous',
+  PLAY_NOTIFICATION: 'play-notification',
 };

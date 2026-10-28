@@ -21,6 +21,11 @@ features. The supported capabilities are:
 - **Locks** — lock / unlock (`lock`);
 - **Motorized shades** — position 0–100 % (`windowShadeLevel`);
 - **Thermostats** — mode, heating setpoint and cooling setpoint;
+- **Speakers and soundbars** — Gladys music player (player widget): volume,
+  mute, play / pause (through the standard command, or the remote control keys
+  on Samsung soundbars), next / previous track when the device offers them, and
+  **voice announcements** from scenes (`audioNotification`, playback resumes
+  afterwards). The audio of TVs is not turned into a music player;
 - **Sensors** (read-only, with history) — temperature, humidity, contact
   (opening), motion, presence, water leak, smoke, battery, illuminance, CO2 and
   air-quality index.

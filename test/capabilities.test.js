@@ -9,6 +9,7 @@ import {
   buildStates,
   getCapabilityIds,
   isLightDevice,
+  isTelevisionDevice,
 } from '../src/devices/capabilities.js';
 import { AC_MODE, FEATURE_CODES } from '../src/constants.js';
 import {
@@ -19,6 +20,11 @@ import {
   PLUG_DEVICE,
   WASHER_DEVICE,
   WASHER_STATUS,
+  SOUNDBAR_DEVICE,
+  SOUNDBAR_STATUS,
+  SPEAKER_DEVICE,
+  SPEAKER_STATUS,
+  TV_DEVICE,
 } from './fixtures.js';
 
 // Minimal external-ids helper mirroring gladys.externalIds().
@@ -220,4 +226,108 @@ test('buildCommand clamps a brightness out of range', () => {
 test('buildCommand returns null for a read-only or unknown feature', () => {
   assert.equal(buildCommand(FEATURE_CODES.TEMPERATURE, 20), null);
   assert.equal(buildCommand('does-not-exist', 1), null);
+});
+
+// --- Music players -------------------------------------------------------------
+
+const summary = (features) =>
+  features.map((f) => `${f.external_id.split(':').pop()} ${f.category}/${f.type}`);
+
+test('a soundbar becomes a music player: volume, mute, play/pause by remote keys, notification', () => {
+  const features = buildFeatures(idsFor('soundbar-1'), SOUNDBAR_DEVICE);
+  assert.deepEqual(summary(features), [
+    'switch switch/binary',
+    'volume music/volume',
+    'mute music/mute',
+    'remote-play music/play',
+    'remote-pause music/pause',
+    'play-notification music/play_notification',
+  ]);
+  const byCode = Object.fromEntries(features.map((f) => [f.external_id.split(':').pop(), f]));
+  assert.equal(byCode.volume.has_feedback, true);
+  assert.equal(byCode.mute.has_feedback, true);
+  assert.equal(byCode['remote-play'].has_feedback, false);
+  assert.equal(byCode['play-notification'].read_only, false);
+});
+
+test('soundbar states: volume and mute, nothing for one-shot commands', () => {
+  const ids = idsFor('soundbar-1');
+  assert.deepEqual(buildStates(ids, SOUNDBAR_STATUS), [
+    { device_feature_external_id: ids.feature('switch'), state: 1 },
+    { device_feature_external_id: ids.feature('volume'), state: 19 },
+    { device_feature_external_id: ids.feature('mute'), state: 1 },
+  ]);
+});
+
+test('soundbar commands', () => {
+  assert.deepEqual(buildCommand('volume', 140), {
+    capability: 'audioVolume',
+    command: 'setVolume',
+    arguments: [100],
+  });
+  assert.deepEqual(buildCommand('mute', 0), {
+    capability: 'audioMute',
+    command: 'unmute',
+    arguments: [],
+  });
+  assert.deepEqual(buildCommand('remote-play', 1), {
+    capability: 'samsungvd.remoteControl',
+    command: 'send',
+    arguments: ['PLAY', 'PRESS_AND_RELEASED'],
+  });
+  assert.deepEqual(buildCommand('remote-pause', 1), {
+    capability: 'samsungvd.remoteControl',
+    command: 'send',
+    arguments: ['PAUSE', 'PRESS_AND_RELEASED'],
+  });
+  assert.deepEqual(buildCommand('play-notification', 'https://example.com/tts.mp3'), {
+    capability: 'audioNotification',
+    command: 'playTrackAndResume',
+    arguments: ['https://example.com/tts.mp3'],
+  });
+  assert.equal(buildCommand('play-notification', 'file:///etc/passwd'), null);
+});
+
+test('a speaker with mediaPlayback gets a writable playback state, not the remote keys', () => {
+  const ids = idsFor('speaker-1');
+  const features = buildFeatures(ids, SPEAKER_DEVICE);
+  assert.deepEqual(summary(features), [
+    'switch switch/binary',
+    'volume music/volume',
+    'playback-state music/playback_state',
+    'play music/play',
+    'pause music/pause',
+    'next music/next',
+    'previous music/previous',
+  ]);
+  const playback = features.find((f) => f.type === 'playback_state');
+  assert.equal(playback.read_only, false);
+  assert.equal(playback.max, 2);
+
+  assert.deepEqual(buildStates(ids, SPEAKER_STATUS), [
+    { device_feature_external_id: ids.feature('volume'), state: 35 },
+    { device_feature_external_id: ids.feature('playback-state'), state: 1 },
+  ]);
+  assert.deepEqual(buildCommand('playback-state', 2), {
+    capability: 'mediaPlayback',
+    command: 'stop',
+    arguments: [],
+  });
+  assert.equal(buildCommand('playback-state', 3), null, 'buffering cannot be written');
+  assert.deepEqual(buildCommand('play', 1), {
+    capability: 'mediaPlayback',
+    command: 'play',
+    arguments: [],
+  });
+  assert.deepEqual(buildCommand('next', 1), {
+    capability: 'mediaTrackControl',
+    command: 'nextTrack',
+    arguments: [],
+  });
+});
+
+test('a TV keeps its on/off only: its audio is not a music player', () => {
+  assert.equal(isTelevisionDevice(TV_DEVICE), true);
+  assert.equal(isTelevisionDevice(SOUNDBAR_DEVICE), false);
+  assert.deepEqual(summary(buildFeatures(idsFor('tv-1'), TV_DEVICE)), ['switch switch/binary']);
 });

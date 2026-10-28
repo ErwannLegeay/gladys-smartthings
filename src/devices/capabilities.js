@@ -26,15 +26,20 @@ import {
   CO2_BOUNDS,
   COLOR_TEMPERATURE_BOUNDS,
   FEATURE_CODES,
+  GLADYS_TO_PLAYBACK_COMMAND,
   GLADYS_TO_THERMOSTAT_MODE,
   ILLUMINANCE_BOUNDS,
   LIGHT_CAPABILITIES,
   MAIN_COMPONENT,
+  MUSIC_PLAYBACK_STATE,
+  MUSIC_TYPES,
   PERCENT_BOUNDS,
+  PLAYBACK_STATUS_TO_GLADYS,
   PM_BOUNDS,
   POWER_BOUNDS,
   PRESSURE_BOUNDS,
   SETPOINT_BOUNDS,
+  TELEVISION_CAPABILITIES,
   TEMPERATURE_BOUNDS,
   THERMOSTAT_MODE_TO_GLADYS,
   VOLTAGE_BOUNDS,
@@ -91,12 +96,22 @@ function clampPercent(value) {
   return Math.max(0, Math.min(100, Math.round(toNumber(value) ?? 0)));
 }
 
+// A Samsung remote control key, pressed and released.
+const remoteKey = (key) => ({
+  capability: 'samsungvd.remoteControl',
+  command: 'send',
+  arguments: [key, 'PRESS_AND_RELEASED'],
+});
+
 // The mapping table. Each entry is ONE Gladys feature. `capability` is the
 // SmartThings capability that must be advertised for the feature to exist;
-// `attribute` is the status field carrying its value. `category`/`type` may be
-// a value or a `(ctx) => value` resolver (ctx = { isLight }). `read` maps a
+// `attribute` is the status field carrying its value (none for a one-shot
+// command such as "next track"). `category`/`type` may be a value or a
+// `(ctx) => value` resolver (ctx = { isLight, isTelevision, capabilities });
+// `when(ctx)`, if set, must be true for the feature to exist. `read` maps a
 // SmartThings `{ value, unit }` attribute to a Gladys numeric state; `command`
 // (controllable features only) maps a Gladys value to a SmartThings command.
+// `hasFeedback: false` marks a command whose effect is not reported back.
 const FEATURES = [
   // --- Switch / light on-off --------------------------------------------------
   {
@@ -178,6 +193,153 @@ const FEATURES = [
       command: 'setColorTemperature',
       arguments: [Math.round(toNumber(value) ?? 0)],
     }),
+  },
+  // --- Music player (speakers, soundbars; not TVs) -----------------------------
+  // The Gladys music widget needs `play` or a writable `playback_state`.
+  {
+    capability: 'audioVolume',
+    attribute: 'volume',
+    code: FEATURE_CODES.VOLUME,
+    name: 'Volume',
+    when: (ctx) => !ctx.isTelevision,
+    category: C.MUSIC,
+    type: MUSIC_TYPES.VOLUME,
+    unit: U.PERCENT,
+    min: 0,
+    max: 100,
+    read: (attr) => toNumber(attr.value),
+    command: (value) => ({
+      capability: 'audioVolume',
+      command: 'setVolume',
+      arguments: [clampPercent(value)],
+    }),
+  },
+  {
+    capability: 'audioMute',
+    attribute: 'mute',
+    code: FEATURE_CODES.MUTE,
+    name: 'Mute',
+    when: (ctx) => !ctx.isTelevision,
+    category: C.MUSIC,
+    type: MUSIC_TYPES.MUTE,
+    min: 0,
+    max: 1,
+    read: (attr) => (attr.value === 'muted' ? 1 : 0),
+    command: (value) => ({
+      capability: 'audioMute',
+      command: value ? 'mute' : 'unmute',
+      arguments: [],
+    }),
+  },
+  {
+    capability: 'mediaPlayback',
+    attribute: 'playbackStatus',
+    code: FEATURE_CODES.PLAYBACK_STATE,
+    name: 'Playback',
+    when: (ctx) => !ctx.isTelevision,
+    category: C.MUSIC,
+    type: MUSIC_TYPES.PLAYBACK_STATE,
+    min: MUSIC_PLAYBACK_STATE.PAUSED,
+    max: MUSIC_PLAYBACK_STATE.IDLE,
+    read: (attr) => {
+      const state = PLAYBACK_STATUS_TO_GLADYS[attr.value];
+      return state === undefined ? null : state;
+    },
+    command: (value) => {
+      const command = GLADYS_TO_PLAYBACK_COMMAND[value];
+      return command ? { capability: 'mediaPlayback', command, arguments: [] } : null;
+    },
+  },
+  {
+    capability: 'mediaPlayback',
+    code: FEATURE_CODES.PLAY,
+    name: 'Play',
+    when: (ctx) => !ctx.isTelevision,
+    category: C.MUSIC,
+    type: MUSIC_TYPES.PLAY,
+    min: 1,
+    max: 1,
+    hasFeedback: false,
+    command: () => ({ capability: 'mediaPlayback', command: 'play', arguments: [] }),
+  },
+  {
+    capability: 'mediaPlayback',
+    code: FEATURE_CODES.PAUSE,
+    name: 'Pause',
+    when: (ctx) => !ctx.isTelevision,
+    category: C.MUSIC,
+    type: MUSIC_TYPES.PAUSE,
+    min: 1,
+    max: 1,
+    hasFeedback: false,
+    command: () => ({ capability: 'mediaPlayback', command: 'pause', arguments: [] }),
+  },
+  // Samsung soundbars have no mediaPlayback: their remote control keys play
+  // and pause.
+  {
+    capability: 'samsungvd.remoteControl',
+    code: FEATURE_CODES.REMOTE_PLAY,
+    name: 'Play',
+    when: (ctx) => !ctx.isTelevision && !ctx.capabilities.has('mediaPlayback'),
+    category: C.MUSIC,
+    type: MUSIC_TYPES.PLAY,
+    min: 1,
+    max: 1,
+    hasFeedback: false,
+    command: () => remoteKey('PLAY'),
+  },
+  {
+    capability: 'samsungvd.remoteControl',
+    code: FEATURE_CODES.REMOTE_PAUSE,
+    name: 'Pause',
+    when: (ctx) => !ctx.isTelevision && !ctx.capabilities.has('mediaPlayback'),
+    category: C.MUSIC,
+    type: MUSIC_TYPES.PAUSE,
+    min: 1,
+    max: 1,
+    hasFeedback: false,
+    command: () => remoteKey('PAUSE'),
+  },
+  {
+    capability: 'mediaTrackControl',
+    code: FEATURE_CODES.NEXT,
+    name: 'Next',
+    when: (ctx) => !ctx.isTelevision,
+    category: C.MUSIC,
+    type: MUSIC_TYPES.NEXT,
+    min: 1,
+    max: 1,
+    hasFeedback: false,
+    command: () => ({ capability: 'mediaTrackControl', command: 'nextTrack', arguments: [] }),
+  },
+  {
+    capability: 'mediaTrackControl',
+    code: FEATURE_CODES.PREVIOUS,
+    name: 'Previous',
+    when: (ctx) => !ctx.isTelevision,
+    category: C.MUSIC,
+    type: MUSIC_TYPES.PREVIOUS,
+    min: 1,
+    max: 1,
+    hasFeedback: false,
+    command: () => ({ capability: 'mediaTrackControl', command: 'previousTrack', arguments: [] }),
+  },
+  // Gladys sends the URL of an audio file (a text-to-speech announcement of a
+  // scene): played, then the previous playback resumes.
+  {
+    capability: 'audioNotification',
+    code: FEATURE_CODES.PLAY_NOTIFICATION,
+    name: 'Play notification',
+    when: (ctx) => !ctx.isTelevision,
+    category: C.MUSIC,
+    type: MUSIC_TYPES.PLAY_NOTIFICATION,
+    min: 1,
+    max: 1,
+    hasFeedback: false,
+    command: (value) =>
+      typeof value === 'string' && /^https?:\/\//.test(value)
+        ? { capability: 'audioNotification', command: 'playTrackAndResume', arguments: [value] }
+        : null,
   },
   // --- Lock -------------------------------------------------------------------
   {
@@ -564,6 +726,22 @@ export function isLightDevice(device) {
 }
 
 /**
+ * Whether a device is a TV (its audio capabilities stay out of the music
+ * player mapping).
+ * @param {object} device a raw SmartThings device
+ * @returns {boolean}
+ */
+export function isTelevisionDevice(device) {
+  const capabilities = getCapabilityIds(device);
+  if (TELEVISION_CAPABILITIES.some((capability) => capabilities.has(capability))) {
+    return true;
+  }
+  const main = getMainComponent(device);
+  const categories = (main && main.categories) || [];
+  return categories.some((category) => /^television$/i.test(category.name || ''));
+}
+
+/**
  * Resolve a descriptor field that may be a value or a `(ctx) => value` resolver.
  */
 function resolve(field, ctx) {
@@ -597,11 +775,17 @@ function readAttribute(status, capability, attribute) {
  */
 export function buildFeatures(ids, device) {
   const capabilities = getCapabilityIds(device);
-  const ctx = { isLight: isLightDevice(device) };
+  const ctx = {
+    isLight: isLightDevice(device),
+    isTelevision: isTelevisionDevice(device),
+    capabilities,
+  };
 
   const seen = new Set();
   const features = [];
-  FEATURES.filter((feature) => capabilities.has(feature.capability)).forEach((feature) => {
+  FEATURES.filter(
+    (feature) => capabilities.has(feature.capability) && (!feature.when || feature.when(ctx)),
+  ).forEach((feature) => {
     const externalId = ids.feature(feature.code);
     // Two descriptors may share a code (e.g. powerMeter and
     // powerConsumptionReport both -> `power`): keep the first one only.
@@ -619,7 +803,7 @@ export function buildFeatures(ids, device) {
       // Gladys slugifies it into e.g. "ext-<selector>-device-<id>-power".
       selector: externalId,
       read_only: feature.readOnly === true,
-      has_feedback: feature.readOnly !== true,
+      has_feedback: feature.readOnly !== true && feature.hasFeedback !== false,
       category: resolve(feature.category, ctx),
       type: resolve(feature.type, ctx),
     };
@@ -653,7 +837,8 @@ export function buildStates(ids, status) {
   FEATURES.forEach((feature) => {
     const externalId = ids.feature(feature.code);
     // Mirror the buildFeatures de-duplication (shared codes): first wins.
-    if (seen.has(externalId)) {
+    // One-shot commands (no attribute) carry no state.
+    if (seen.has(externalId) || !feature.attribute) {
       return;
     }
     const attr = readAttribute(status, feature.capability, feature.attribute);

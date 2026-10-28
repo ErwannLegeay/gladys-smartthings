@@ -70,6 +70,15 @@ The redirect URI is the Gladys relay: SmartThings sends you back there, and it
 forwards you to your own Gladys instance, whatever its address (no public HTTPS
 address needed on your side).
 
+If you access Gladys over HTTPS (Gladys Plus or your own domain), the
+Configuration screen offers **"Use the address of my instance instead"** under
+the Connect button. When it is ticked, Gladys sends the address it shows there
+(for example
+`https://plus.gladysassistant.com/dashboard/integration/device/external/<integration>/oauth-callback`)
+instead of the relay: declare that exact address in the app too, otherwise
+SmartThings answers `'redirect_uri' could not be validated`. An app can list
+several redirect URIs.
+
 ### 2. Connect from Gladys
 
 1. Open the integration **Configuration** screen.
@@ -123,10 +132,12 @@ of the previous app: click **Connect** again.
   in the Configuration screen.
 - **"Fill in and save the client id and client secret" when clicking Connect**
   — save the two fields first, then click **Connect**.
-- **The SmartThings page shows an error about the redirect URI** — the app must
-  list exactly `https://my.gladysassistant.com/redirect/oauth`. Check it with
-  `smartthings apps:oauth <app id>` and fix it with
-  `smartthings apps:oauth:update <app id>`.
+- **`'redirect_uri' could not be validated` on the SmartThings page** — the app
+  does not list the redirect URI Gladys sent: the relay
+  `https://my.gladysassistant.com/redirect/oauth`, or, when "Use the address of
+  my instance instead" is ticked, the address shown under the Connect button.
+  Check the app with `smartthings apps:oauth <app id>` and add the missing
+  address with `smartthings apps:oauth:update <app id>`.
 - **The connection status asks to click "Connect" again** — SmartThings no
   longer accepts the authorization (revoked in the SmartThings app, or unused
   for 29 days): click **Connect**.

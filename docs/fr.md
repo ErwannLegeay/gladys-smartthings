@@ -74,6 +74,15 @@ La redirect URI est le relais de Gladys : SmartThings vous y renvoie, et il vous
 redirige vers votre propre instance Gladys, quelle que soit son adresse (pas
 besoin d'adresse HTTPS publique de votre côté).
 
+Si vous accédez à Gladys en HTTPS (Gladys Plus ou votre propre domaine), l'écran
+de Configuration propose sous le bouton Connecter **« Utiliser plutôt l'adresse
+de mon instance »**. Si la case est cochée, Gladys envoie l'adresse qu'il affiche
+à cet endroit (par exemple
+`https://plus.gladysassistant.com/dashboard/integration/device/external/<intégration>/oauth-callback`)
+au lieu du relais : déclarez aussi cette adresse exacte dans l'application,
+sinon SmartThings répond `'redirect_uri' could not be validated`. Une
+application peut déclarer plusieurs redirect URIs.
+
 ### 2. Se connecter depuis Gladys
 
 1. Ouvrez l'écran de **Configuration** de l'intégration.
@@ -131,11 +140,12 @@ oublier les tokens de l'application précédente : cliquez à nouveau sur
 - **« Fill in and save the client id and client secret » en cliquant sur
   Connecter** — enregistrez d'abord les deux champs, puis cliquez sur
   **Connecter**.
-- **La page SmartThings affiche une erreur sur la redirect URI** —
-  l'application doit déclarer exactement
-  `https://my.gladysassistant.com/redirect/oauth`. Vérifiez-la avec
-  `smartthings apps:oauth <id de l'app>` et corrigez-la avec
-  `smartthings apps:oauth:update <id de l'app>`.
+- **`'redirect_uri' could not be validated` sur la page SmartThings** —
+  l'application ne déclare pas la redirect URI envoyée par Gladys : le relais
+  `https://my.gladysassistant.com/redirect/oauth`, ou, si « Utiliser plutôt
+  l'adresse de mon instance » est cochée, l'adresse affichée sous le bouton
+  Connecter. Vérifiez l'application avec `smartthings apps:oauth <id de l'app>`
+  et ajoutez l'adresse manquante avec `smartthings apps:oauth:update <id de l'app>`.
 - **Le statut de connexion demande de cliquer à nouveau sur « Connecter »** —
   SmartThings n'accepte plus l'autorisation (révoquée dans l'application
   SmartThings, ou inutilisée pendant 29 jours) : cliquez sur **Connecter**.

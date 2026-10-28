@@ -13,6 +13,20 @@ export const SMARTTHINGS_ENDPOINT = (
   process.env.SMARTTHINGS_ENDPOINT || 'https://api.smartthings.com/v1'
 ).replace(/\/+$/, '');
 
+// OAuth2 (SmartThings "API Access" app created with the SmartThings CLI): the
+// authorization page and the token endpoint live under the API base URL.
+export const OAUTH_AUTHORIZE_URL = `${SMARTTHINGS_ENDPOINT}/oauth/authorize`;
+export const OAUTH_TOKEN_URL = `${SMARTTHINGS_ENDPOINT}/oauth/token`;
+// Read and control the devices, read the locations (same rights as the PAT).
+export const OAUTH_SCOPES = ['r:devices:*', 'x:devices:*', 'r:locations:*'];
+// SmartThings access tokens live ~24 h. Refresh when less than this margin is
+// left, and check at this interval even when no device is polled: a refresh
+// token unused for 29 days is dead, and the user would have to reconnect.
+export const OAUTH_REFRESH_MARGIN_MS = 6 * 60 * 60 * 1000;
+export const OAUTH_REFRESH_CHECK_INTERVAL_MS = 60 * 60 * 1000;
+// An authorization started with "Connect" must come back within this delay.
+export const OAUTH_STATE_TTL_MS = 15 * 60 * 1000;
+
 // SmartThings devices are organized in components; almost every capability of
 // a consumer device lives on the "main" component. This integration maps the
 // main component (see the docs for the multi-component note).

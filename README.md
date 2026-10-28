@@ -11,30 +11,29 @@ using a **Personal Access Token**.
 
 ## Supported capabilities
 
-| SmartThings capability                                                                | Gladys feature                                                        |
-| ------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| `switch`                                                                              | Switch / light on-off                                                 |
-| `switchLevel`                                                                         | Brightness (light) or dimmer (switch)                                 |
-| `colorControl`                                                                        | Hue + saturation                                                      |
-| `colorTemperature`                                                                    | Color temperature (K)                                                 |
-| `lock`                                                                                | Lock / unlock                                                         |
-| `windowShadeLevel`                                                                    | Shade position (%)                                                    |
-| `thermostatMode` / `thermostatHeatingSetpoint` / `thermostatCoolingSetpoint`          | Thermostat mode + setpoints                                           |
-| `temperatureMeasurement`                                                              | Temperature sensor (°C, Fahrenheit auto-converted)                    |
-| `relativeHumidityMeasurement`                                                         | Humidity sensor                                                       |
-| `contactSensor` / `motionSensor` / `presenceSensor` / `waterSensor` / `smokeDetector` | Binary sensors                                                        |
-| `battery`                                                                             | Battery                                                               |
-| `powerMeter` / `voltageMeasurement`                                                   | Power (W), voltage (read-only)                                        |
-| `powerConsumptionReport` (Samsung appliances)                                         | Instantaneous power (W) from the nested report                        |
-| `samsungce.kidsLock` (Samsung appliances)                                             | Child lock (read-only)                                                |
-| `illuminanceMeasurement`                                                              | Light sensor (lux)                                                    |
-| `carbonDioxideMeasurement` / `airQualitySensor`                                       | CO2 / air-quality index                                               |
-| `dustSensor`                                                                          | PM2.5 + PM10 (µg/m³)                                                  |
-| `atmosphericPressureMeasurement`                                                      | Atmospheric pressure (hPa)                                            |
-| `audioVolume` / `audioMute` (speakers, soundbars; not TVs)                            | Music player volume, mute                                             |
-| `mediaPlayback` / `mediaTrackControl`                                                 | Music player playback state (writable), play, pause, next, previous   |
-| `samsungvd.remoteControl` (without `mediaPlayback`)                                   | Music player play / pause through the remote keys (Samsung soundbars) |
-| `audioNotification`                                                                   | Music player `play_notification` (scene voice announcements)          |
+| SmartThings capability                                                                | Gladys feature                                                      |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `switch`                                                                              | Switch / light on-off                                               |
+| `switchLevel`                                                                         | Brightness (light) or dimmer (switch)                               |
+| `colorControl`                                                                        | Hue + saturation                                                    |
+| `colorTemperature`                                                                    | Color temperature (K)                                               |
+| `lock`                                                                                | Lock / unlock                                                       |
+| `windowShadeLevel`                                                                    | Shade position (%)                                                  |
+| `thermostatMode` / `thermostatHeatingSetpoint` / `thermostatCoolingSetpoint`          | Thermostat mode + setpoints                                         |
+| `temperatureMeasurement`                                                              | Temperature sensor (°C, Fahrenheit auto-converted)                  |
+| `relativeHumidityMeasurement`                                                         | Humidity sensor                                                     |
+| `contactSensor` / `motionSensor` / `presenceSensor` / `waterSensor` / `smokeDetector` | Binary sensors                                                      |
+| `battery`                                                                             | Battery                                                             |
+| `powerMeter` / `voltageMeasurement`                                                   | Power (W), voltage (read-only)                                      |
+| `powerConsumptionReport` (Samsung appliances)                                         | Instantaneous power (W) from the nested report                      |
+| `samsungce.kidsLock` (Samsung appliances)                                             | Child lock (read-only)                                              |
+| `illuminanceMeasurement`                                                              | Light sensor (lux)                                                  |
+| `carbonDioxideMeasurement` / `airQualitySensor`                                       | CO2 / air-quality index                                             |
+| `dustSensor`                                                                          | PM2.5 + PM10 (µg/m³)                                                |
+| `atmosphericPressureMeasurement`                                                      | Atmospheric pressure (hPa)                                          |
+| `audioVolume` / `audioMute` (speakers, soundbars; not TVs)                            | Music player volume, mute                                           |
+| `mediaPlayback` / `mediaTrackControl`                                                 | Music player playback state (writable), play, pause, next, previous |
+| `audioNotification`                                                                   | Music player `play_notification` (scene voice announcements)        |
 
 Only the `main` component of each device is mapped.
 

@@ -144,8 +144,7 @@ export const PLUG_STATUS = {
   },
 };
 
-// A Samsung soundbar (HW-Q935F, real capability list): no mediaPlayback, play
-// and pause go through the remote control keys.
+// A Samsung soundbar (HW-Q935F, real capability list): no mediaPlayback.
 const caps = (...ids) => ids.map((id) => ({ id, version: 1 }));
 
 export const SOUNDBAR_DEVICE = {

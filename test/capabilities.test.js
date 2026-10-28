@@ -233,20 +233,18 @@ test('buildCommand returns null for a read-only or unknown feature', () => {
 const summary = (features) =>
   features.map((f) => `${f.external_id.split(':').pop()} ${f.category}/${f.type}`);
 
-test('a soundbar becomes a music player: volume, mute, play/pause by remote keys, notification', () => {
+test('a soundbar gets volume, mute and voice announcements, no remote keys', () => {
   const features = buildFeatures(idsFor('soundbar-1'), SOUNDBAR_DEVICE);
   assert.deepEqual(summary(features), [
     'switch switch/binary',
     'volume music/volume',
     'mute music/mute',
-    'remote-play music/play',
-    'remote-pause music/pause',
     'play-notification music/play_notification',
   ]);
   const byCode = Object.fromEntries(features.map((f) => [f.external_id.split(':').pop(), f]));
   assert.equal(byCode.volume.has_feedback, true);
   assert.equal(byCode.mute.has_feedback, true);
-  assert.equal(byCode['remote-play'].has_feedback, false);
+  assert.equal(byCode['play-notification'].has_feedback, false);
   assert.equal(byCode['play-notification'].read_only, false);
 });
 
@@ -270,16 +268,6 @@ test('soundbar commands', () => {
     command: 'unmute',
     arguments: [],
   });
-  assert.deepEqual(buildCommand('remote-play', 1), {
-    capability: 'samsungvd.remoteControl',
-    command: 'send',
-    arguments: ['PLAY', 'PRESS_AND_RELEASED'],
-  });
-  assert.deepEqual(buildCommand('remote-pause', 1), {
-    capability: 'samsungvd.remoteControl',
-    command: 'send',
-    arguments: ['PAUSE', 'PRESS_AND_RELEASED'],
-  });
   assert.deepEqual(buildCommand('play-notification', 'https://example.com/tts.mp3'), {
     capability: 'audioNotification',
     command: 'playTrackAndResume',
@@ -288,7 +276,7 @@ test('soundbar commands', () => {
   assert.equal(buildCommand('play-notification', 'file:///etc/passwd'), null);
 });
 
-test('a speaker with mediaPlayback gets a writable playback state, not the remote keys', () => {
+test('a speaker with mediaPlayback gets a writable playback state and track control', () => {
   const ids = idsFor('speaker-1');
   const features = buildFeatures(ids, SPEAKER_DEVICE);
   assert.deepEqual(summary(features), [

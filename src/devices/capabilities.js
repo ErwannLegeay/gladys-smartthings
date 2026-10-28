@@ -96,13 +96,6 @@ function clampPercent(value) {
   return Math.max(0, Math.min(100, Math.round(toNumber(value) ?? 0)));
 }
 
-// A Samsung remote control key, pressed and released.
-const remoteKey = (key) => ({
-  capability: 'samsungvd.remoteControl',
-  command: 'send',
-  arguments: [key, 'PRESS_AND_RELEASED'],
-});
-
 // The mapping table. Each entry is ONE Gladys feature. `capability` is the
 // SmartThings capability that must be advertised for the feature to exist;
 // `attribute` is the status field carrying its value (none for a one-shot
@@ -195,7 +188,10 @@ const FEATURES = [
     }),
   },
   // --- Music player (speakers, soundbars; not TVs) -----------------------------
-  // The Gladys music widget needs `play` or a writable `playback_state`.
+  // The Gladys music widget needs `play` or a writable `playback_state`, which
+  // only devices with mediaPlayback have. Samsung soundbars have none: their
+  // remote control PLAY / PAUSE keys are ignored through SmartThings (tested on
+  // a HW-Q935F), and a Spotify Connect playback is invisible to SmartThings.
   {
     capability: 'audioVolume',
     attribute: 'volume',
@@ -273,32 +269,6 @@ const FEATURES = [
     max: 1,
     hasFeedback: false,
     command: () => ({ capability: 'mediaPlayback', command: 'pause', arguments: [] }),
-  },
-  // Samsung soundbars have no mediaPlayback: their remote control keys play
-  // and pause.
-  {
-    capability: 'samsungvd.remoteControl',
-    code: FEATURE_CODES.REMOTE_PLAY,
-    name: 'Play',
-    when: (ctx) => !ctx.isTelevision && !ctx.capabilities.has('mediaPlayback'),
-    category: C.MUSIC,
-    type: MUSIC_TYPES.PLAY,
-    min: 1,
-    max: 1,
-    hasFeedback: false,
-    command: () => remoteKey('PLAY'),
-  },
-  {
-    capability: 'samsungvd.remoteControl',
-    code: FEATURE_CODES.REMOTE_PAUSE,
-    name: 'Pause',
-    when: (ctx) => !ctx.isTelevision && !ctx.capabilities.has('mediaPlayback'),
-    category: C.MUSIC,
-    type: MUSIC_TYPES.PAUSE,
-    min: 1,
-    max: 1,
-    hasFeedback: false,
-    command: () => remoteKey('PAUSE'),
   },
   {
     capability: 'mediaTrackControl',

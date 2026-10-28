@@ -23,12 +23,14 @@ donc exposer plusieurs fonctionnalités. Les capabilities prises en charge sont 
 - **Serrures** — verrouiller / déverrouiller (`lock`) ;
 - **Volets motorisés** — position 0–100 % (`windowShadeLevel`) ;
 - **Thermostats** — mode, consigne de chauffage et consigne de climatisation ;
-- **Enceintes et barres de son** — lecteur de musique Gladys (widget
-  lecteur) : volume, sourdine, lecture / pause (par la commande standard, ou
-  par les touches de télécommande sur les barres de son Samsung), piste
-  suivante / précédente quand l'appareil les propose, et **annonces vocales**
-  des scènes (`audioNotification`, la lecture reprend ensuite). Le son des
-  téléviseurs n'est pas transformé en lecteur de musique ;
+- **Enceintes et barres de son** — volume et sourdine, et **annonces vocales**
+  des scènes (`audioNotification`, la lecture reprend ensuite). Un appareil qui
+  propose aussi les commandes de lecture standard (`mediaPlayback`,
+  `mediaTrackControl`) devient un vrai lecteur de musique Gladys (widget
+  lecteur) : lecture / pause, piste suivante / précédente. Les barres de son
+  Samsung ne les proposent pas via SmartThings, et une lecture Spotify Connect
+  est invisible pour SmartThings : pilotez-la avec une intégration Spotify. Le
+  son des téléviseurs n'est pas transformé en lecteur de musique ;
 - **Capteurs** (lecture seule, avec historique) — température, humidité,
   ouverture (contact), mouvement, présence, fuite d'eau, fumée, batterie,
   luminosité, CO2 et indice de qualité d'air.

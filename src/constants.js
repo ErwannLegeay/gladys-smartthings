@@ -151,10 +151,6 @@ export const FEATURE_CODES = {
   PLAYBACK_STATE: 'playback-state',
   PLAY: 'play',
   PAUSE: 'pause',
-  // Play / pause through the Samsung remote control keys (soundbars without
-  // mediaPlayback): own codes, so that a command never picks the wrong path.
-  REMOTE_PLAY: 'remote-play',
-  REMOTE_PAUSE: 'remote-pause',
   NEXT: 'next',
   PREVIOUS: 'previous',
   PLAY_NOTIFICATION: 'play-notification',

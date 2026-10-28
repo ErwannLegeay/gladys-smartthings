@@ -75,16 +75,14 @@ function newSession(tokenUrl, overrides = {}) {
 
 test('buildAuthorizeUrl encodes the scopes with %20 and keeps the state', () => {
   const url = new URL(
-    buildAuthorizeUrl(
-      {
-        clientId: 'my-client',
-        redirectUri: 'https://my.gladysassistant.com/redirect/oauth',
-        state: 'abc',
-      },
-      'https://api.smartthings.com/v1/oauth/authorize',
-    ),
+    buildAuthorizeUrl({
+      clientId: 'my-client',
+      redirectUri: 'https://my.gladysassistant.com/redirect/oauth',
+      state: 'abc',
+    }),
   );
-  assert.equal(url.origin + url.pathname, 'https://api.smartthings.com/v1/oauth/authorize');
+  // At the root of the API host: /v1/oauth/authorize fails after the sign-in.
+  assert.equal(url.origin + url.pathname, 'https://api.smartthings.com/oauth/authorize');
   assert.equal(url.searchParams.get('client_id'), 'my-client');
   assert.equal(url.searchParams.get('response_type'), 'code');
   assert.equal(

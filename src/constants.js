@@ -13,9 +13,12 @@ export const SMARTTHINGS_ENDPOINT = (
   process.env.SMARTTHINGS_ENDPOINT || 'https://api.smartthings.com/v1'
 ).replace(/\/+$/, '');
 
-// OAuth2 (SmartThings "API Access" app created with the SmartThings CLI): the
-// authorization page and the token endpoint live under the API base URL.
-export const OAUTH_AUTHORIZE_URL = `${SMARTTHINGS_ENDPOINT}/oauth/authorize`;
+// OAuth2 (SmartThings "API Access" app created with the SmartThings CLI).
+// The authorization page is served at the root of the API host: the documented
+// /v1/oauth/authorize goes through the Samsung sign-in, then fails with
+// "Resource representation is only available with these types: text/html"
+// (seen on a real account). The token endpoint works under /v1.
+export const OAUTH_AUTHORIZE_URL = `${SMARTTHINGS_ENDPOINT.replace(/\/v1$/, '')}/oauth/authorize`;
 export const OAUTH_TOKEN_URL = `${SMARTTHINGS_ENDPOINT}/oauth/token`;
 // Read and control the devices, read the locations (same rights as the PAT).
 export const OAUTH_SCOPES = ['r:devices:*', 'x:devices:*', 'r:locations:*'];
